@@ -19,12 +19,6 @@ app.use(express.json());
 
 app.use("/auth", authRoute);
 app.use("/product", productRoute);
-// multer อ่าน file -> formData
-// เขียน file ลงบนโปรเจค
-// upload ขึ้น clound
-// Clound -> url
-// เก็บ url เช้า DB
-// ลบรูปบน server
 app.use('/admin', authenticate, admin, adminRoute);
 
 app.use(errorHandler);
