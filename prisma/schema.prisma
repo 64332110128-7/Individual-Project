@@ -148,8 +148,8 @@ model Product {
   brandId           Int
   collection        Collection          @relation(fields: [collectionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   collectionId      Int
-  series            Series?             @relation(fields: [seriesId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  seriesId          Int?
+  series            Series             @relation(fields: [seriesId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  seriesId          Int
   product_Promotion Product_Promotion[]
 }
 
