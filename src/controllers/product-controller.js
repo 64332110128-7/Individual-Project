@@ -44,7 +44,7 @@ exports.getProducts = async (req, res, next) => {
 exports.getProductById = async (req, res, next) => {
   try {
     const { productId } = req.params;
-    const { brand, collection, series, product_img } = req.query;
+    const { brand, collection, series } = req.query;
     const product = await prisma.product.findFirst({
       where: {
         id: Number(productId),
@@ -57,15 +57,11 @@ exports.getProductById = async (req, res, next) => {
         series: {
           name: series,
         },
-        product_img: {
-          url: product_img,
-        }
       },
       include: {
         brand: true,
         collection: true,
         series: true,
-        product_img: true,
       },
     });
     if (!product) {
