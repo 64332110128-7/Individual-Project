@@ -1,11 +1,13 @@
 const cloudUpload = require("../utils/cloudUpload");
 const prisma = require("../config/prisma");
 const createError = require("../utils/createError");
-const { createProductSchema } = require("../validator/admin-validator");
+const {
+  createProductSchema,
+  updateProductSchema,
+} = require("../validator/admin-validator");
 
 exports.createProduct = async (req, res, next) => {
   try {
-
     const value = await createProductSchema.validateAsync(req.body);
 
     const { brandId, collectionId, seriesId } = req.body;
@@ -70,7 +72,55 @@ exports.createProduct = async (req, res, next) => {
 
 exports.updateProduct = async (req, res, next) => {
   try {
-    res.json({ message: "Update Product" });
+    const { productId } = req.params;
+    const value = await updateProductSchema.validateAsync(req.body);
+
+    if (value.brandId) {
+      const existBrand = await prisma.brand.findUnique({
+        where: {
+          id: Number(value.brandId),
+        },
+      });
+
+      if (!existBrand) {
+        return createError(400, "Brand is invalid");
+      }
+    }
+
+    if (value.collectionId) {
+      const existCollection = await prisma.brand.findUnique({
+        where: {
+          id: Number(value.collectionId),
+        },
+      });
+
+      if (!existCollection) {
+        return createError(400, "Collection is invalid");
+      }
+    }
+
+    if (value.seriesId) {
+      const existSeries = await prisma.brand.findUnique({
+        where: {
+          id: Number(value.seriesId),
+        },
+      });
+
+      if (!existSeries) {
+        return createError(400, "Series is invalid");
+      }
+    }
+
+    const product = await prisma.product.update({
+      where: {
+        id: Number(productId),
+      },
+      data: {
+        ...value,
+      },
+    });
+
+    res.json({ product });
   } catch (err) {
     next(err);
   }

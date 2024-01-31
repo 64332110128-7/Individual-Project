@@ -29,6 +29,7 @@ exports.getProducts = async (req, res, next) => {
       brand: true,
       collection: true,
       series: true,
+      product_img: true,
     },
   });
   if(products.length === 0) {
@@ -43,14 +44,33 @@ exports.getProducts = async (req, res, next) => {
 exports.getProductById = async (req, res, next) => {
   try {
     const { productId } = req.params;
-    if (!product) {
-      return createError(404, "Product ID not found");
-    }
+    const { brand, collection, series, product_img } = req.query;
     const product = await prisma.product.findFirst({
       where: {
         id: Number(productId),
+        brand: {
+          name: brand,
+        },
+        collection: {
+          name: collection,
+        },
+        series: {
+          name: series,
+        },
+        product_img: {
+          url: product_img,
+        }
+      },
+      include: {
+        brand: true,
+        collection: true,
+        series: true,
+        product_img: true,
       },
     });
+    if (!product) {
+      return createError(404, "Product ID not found");
+    }
     if (product === null) {
       return createError(400, "Product ID = " + productId + " have no item");
     }
