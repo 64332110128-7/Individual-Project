@@ -6,20 +6,43 @@ const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { firstName, lastName, phone, email, password, confirmPassword } =
+      req.body;
 
-    if (!email || !password) {
-      return createError(400, "Email or password are require");
+    if (
+      !(firstName && lastName && phone && email && password && confirmPassword)
+    ) {
+      return next(new Error("Fulfill all inputs"));
     }
 
-    if (typeof email !== "string" || typeof password !== "string") {
-      return createError(400, "email or password is invalid");
+    if (typeof firstName !== "string") {
+      return createError(400, "First name is invalid");
+    }
+
+    if (typeof lastName !== "string") {
+      return createError(400, "Last name is invalid");
+    }
+
+    if (typeof email !== "string") {
+      return createError(400, "Email is invalid");
+    }
+
+    if (typeof password !== "string") {
+      return createError(400, "password is invalid");
+    }
+
+    if (typeof confirmPassword !== "string") {
+      return createError(400, "Confirm Password is invalid");
     }
 
     const isUserExist = await userService.getUserByEmail(email);
 
     if (isUserExist) {
-      return createError(400, "User already exist");
+      return createError(400, "Email already exist");
+    }
+
+    if (confirmPassword !== password) {
+      return createError(400, "confirm password not match");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -60,7 +83,7 @@ exports.login = async (req, res, next) => {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
 
-    res.json({ token });
+    res.json({ message: "Login success" });
   } catch (error) {
     next(err);
   }
