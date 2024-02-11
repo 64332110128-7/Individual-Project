@@ -12,42 +12,38 @@ exports.register = async (req, res, next) => {
     if (
       !(firstName && lastName && phone && email && password && confirmPassword)
     ) {
-      return next(new Error("Fulfill all inputs"));
+      return createError(403, "Please enter your input data");
     }
 
-    if (typeof firstName !== "string") {
-      return createError(400, "First name is invalid");
-    }
-
-    if (typeof lastName !== "string") {
-      return createError(400, "Last name is invalid");
-    }
-
-    if (typeof email !== "string") {
-      return createError(400, "Email is invalid");
-    }
-
-    if (typeof password !== "string") {
-      return createError(400, "password is invalid");
-    }
-
-    if (typeof confirmPassword !== "string") {
-      return createError(400, "Confirm Password is invalid");
+    if (
+      typeof firstName !== "string" ||
+      typeof lastName !== "string" ||
+      typeof email !== "string" ||
+      typeof password !== "string" ||
+      typeof confirmPassword !== "string"
+    ) {
+      return createError(400, "Invalid input data, please check your fields");
     }
 
     const isUserExist = await userService.getUserByEmail(email);
 
     if (isUserExist) {
-      return createError(400, "Email already exist");
+      return createError(401, "Email already exist");
     }
 
     if (confirmPassword !== password) {
-      return createError(400, "confirm password not match");
+      return createError(402, "confirm password not match");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await userService.createUser(email, hashedPassword);
+    await userService.createUser(
+      firstName,
+      lastName,
+      phone,
+      email,
+      hashedPassword
+    );
 
     res.json({ message: "register success" });
   } catch (err) {
@@ -64,29 +60,33 @@ exports.login = async (req, res, next) => {
     }
 
     if (typeof email !== "string" || typeof password !== "string") {
-      return createError(400, "Email or password is invalid");
+      return createError(401, "Email or password is invalid");
     }
 
     const isUserExist = await userService.getUserByEmail(email);
 
     if (!isUserExist) {
-      return createError(400, "Email or password is invalid");
+      return createError(401, "Email or password is invalid");
     }
 
     const isPasswordMatch = bcrypt.compare(password, isUserExist.password);
 
     if (!isPasswordMatch) {
-      return createError(400, "Email or password is invalid");
+      return createError(401, "Email or password is invalid");
     }
 
     const token = jwt.sign({ id: isUserExist.id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
 
-    res.json({ message: "Login success" });
-  } catch (error) {
+    res.json({ message: "Login success", token });
+  } catch (err) {
     next(err);
   }
+};
+
+exports.getMe = (req, res, next) => {
+  res.json(req.user);
 };
 
 exports.forgetPassword = (req, res, next) => {

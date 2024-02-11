@@ -16,9 +16,12 @@ exports.getUserByEmail = (email) => {
     })
 }
 
-exports.createUser = (email, password) => {
+exports.createUser = (firstName, lastName, phone, email, password) => {
     return prisma.user.create({
         data:{
+            firstName,
+            lastName,
+            phone,
             email,
             password,
         },
