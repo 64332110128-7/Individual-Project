@@ -142,15 +142,16 @@ model Product {
   favorite_Product  Favorite_Product[]
   cart_product      Cart_product[]
   order_item        Order_item[]
-  status_product    Status_product[]
+  status_product    Prodcut_status      @default(NEW)
   product_img       Product_img[]
   brand             Brand               @relation(fields: [brandId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   brandId           Int
   collection        Collection          @relation(fields: [collectionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   collectionId      Int
-  series            Series             @relation(fields: [seriesId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  series            Series              @relation(fields: [seriesId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   seriesId          Int
   product_Promotion Product_Promotion[]
+  Status_product    Status_product[]
 }
 
 enum Prodcut_status {

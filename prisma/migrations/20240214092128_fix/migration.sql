@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `product` ADD COLUMN `status_product` ENUM('NEW', 'PREORDER', 'LIMITED', 'SOLDOUT', 'OUTSTOCK', 'LOWSTOCK') NOT NULL DEFAULT 'NEW';
