@@ -6,10 +6,12 @@ const router = express.Router();
 
 router.post(
   "/product",
-  upload.array("Images", 5),
+  upload.array("Images", 10),
   adminController.createProduct
 );
 router.patch("/product/:productId", adminController.updateProduct);
+
+router.delete("/product/:productId", adminController.deleteProduct);
 
 router.post("/collection", adminController.createCollection);
 

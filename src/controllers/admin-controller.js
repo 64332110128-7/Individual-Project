@@ -1,4 +1,5 @@
 const cloudUpload = require("../utils/cloudUpload");
+const cloudDelete = require("../utils/cloudDelete");
 const prisma = require("../config/prisma");
 const createError = require("../utils/createError");
 const {
@@ -177,6 +178,42 @@ exports.createPromotion = async (req, res, next) => {
       },
     });
     res.json({ promotion });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteProduct = async (req, res, next) => {
+  const { productId } = req.params;
+  try {
+    const product = await prisma.product.findUnique({
+      where: {
+        id: Number(productId),
+      },
+      include: {
+        product_img: true,
+      },
+    });
+
+    const imageUrls = product.product_img.map((img) => img.url);
+    const deleteImagePromises = imageUrls.map(async (url) => {
+      await cloudDelete(url);
+    });
+    await Promise.all(deleteImagePromises);
+
+    await prisma.product_img.deleteMany({
+      where: {
+        productId: product.id,
+      },
+    });
+
+    const deletedProduct = await prisma.product.delete({
+      where: {
+        id: Number(productId),
+      },
+    });
+
+    res.json({ msg: "Delete success", result: deletedProduct });
   } catch (err) {
     next(err);
   }

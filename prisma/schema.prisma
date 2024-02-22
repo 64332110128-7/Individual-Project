@@ -133,16 +133,16 @@ model Product {
   version           String
   name              String
   price             Int
-  detail            String
+  detail            String              @db.VarChar(5000)
   scale             String
-  weight            Decimal
+  weight            Int
   material          String
   user              User                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId            Int                 @map("user_id")
   favorite_Product  Favorite_Product[]
   cart_product      Cart_product[]
   order_item        Order_item[]
-  status_product    Prodcut_status      @default(NEW)
+  status_product    Product_status      @default(NEW)
   product_img       Product_img[]
   brand             Brand               @relation(fields: [brandId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   brandId           Int
@@ -151,23 +151,15 @@ model Product {
   series            Series              @relation(fields: [seriesId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   seriesId          Int
   product_Promotion Product_Promotion[]
-  Status_product    Status_product[]
 }
 
-enum Prodcut_status {
+enum Product_status {
   NEW
   PREORDER
   LIMITED
   SOLDOUT
   OUTSTOCK
   LOWSTOCK
-}
-
-model Status_product {
-  id        Int            @id @default(autoincrement())
-  status    Prodcut_status @default(NEW)
-  product   Product        @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  productId Int            @map("product_id")
 }
 
 model Product_Promotion {
