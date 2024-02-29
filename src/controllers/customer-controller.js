@@ -5,6 +5,25 @@ const {
   updateAddressSchema,
 } = require("../validator/address-validator");
 
+exports.getAddressByUserId = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const address = await prisma.Shipping_Address.findMany({
+      where: {
+        userId: parseInt(userId),
+      },
+    });
+
+    if (address.length === 0) {
+      return createError(401, "No address found");
+    }
+
+    res.json({ address });
+  } catch (err) {
+    next(err);
+  }
+};
+
 exports.createAddress = async (req, res, next) => {
   try {
     const value = await createAddressSchema.validateAsync(req.body);
