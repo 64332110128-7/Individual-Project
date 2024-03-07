@@ -55,7 +55,6 @@ model Shipping_Address {
 
 model Favorite {
   id               Int                @id @default(autoincrement())
-  name             String
   user             User               @relation(fields: [userId], references: [id])
   userId           Int
   favoriteProducts Favorite_Product[]

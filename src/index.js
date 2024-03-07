@@ -13,6 +13,7 @@ const customer = require("./routes/customer-route");
 const authenticate = require("./middlewares/authenticate");
 const admin = require("./middlewares/admin");
 const cart = require("./routes/cart-route");
+const order = require("./routes/order-route")
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use("/product", productRoute);
 app.use("/admin", authenticate, admin, adminRoute);
 app.use("/customer", authenticate, customer);
 app.use("/cart", authenticate, cart);
+app.use("/order", authenticate, order);
 
 app.use(errorHandler);
 app.use("*", notFoundHandler);

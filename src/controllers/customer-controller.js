@@ -118,6 +118,112 @@ exports.getAddressById = async (req, res, next) => {
     }
     res.json({ address });
   } catch (err) {
-    next(err)
+    next(err);
   }
-}
+};
+
+exports.getFavorite = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const fav = await prisma.Favorite.findMany({
+      where: {
+        userId: parseInt(userId),
+      },
+      include: {
+        favoriteProducts: {
+          include: {
+            product: {
+              include: {
+                brand: true,
+                collection: true,
+                series: true,
+                product_img: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (fav.length === 0) {
+      return createError(404, "No favorite items found");
+    }
+
+    res.json({ fav });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.newFavorite = async (req, res, next) => {
+  try {
+    const { userId, productId } = req.params;
+
+    const existingFavorite = await prisma.Favorite.findFirst({
+      where: {
+        userId: parseInt(userId),
+        favoriteProducts: {
+          some: {
+            productId: parseInt(productId),
+          },
+        },
+      },
+    });
+
+    if (existingFavorite) {
+      return createError(400, "Product is already in favorites");
+    }
+
+    const newFavorite = await prisma.Favorite.create({
+      data: {
+        user: {
+          connect: {
+            id: parseInt(userId),
+          },
+        },
+        favoriteProducts: {
+          create: {
+            product: {
+              connect: {
+                id: parseInt(productId),
+              },
+            },
+          },
+        },
+      },
+      include: {
+        favoriteProducts: true,
+      },
+    });
+
+    res.json({ newFavorite });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.deleteFavorite = async (req, res, next) => {
+  try {
+    const { favoriteId } = req.params;
+
+    const fav = await prisma.Favorite.findUnique({
+      where: {
+        id: parseInt(favoriteId),
+      },
+    });
+
+    if (!fav) {
+      return createError(404, "Favorite not found");
+    }
+
+    await prisma.Favorite.delete({
+      where: {
+        id: parseInt(favoriteId),
+      },
+    });
+
+    res.json({ message: "Favorite deleted successfully" });
+  } catch (err) {
+    next(err);
+  }
+};

@@ -23,7 +23,38 @@ exports.getProductsLanding = async (req, res, next) => {
 
 exports.getProducts = async (req, res, next) => {
   try {
-    const product = await prisma.product.findMany({
+    const { name } = req.query;
+    const products = await prisma.product.findMany({
+      where: {
+        OR: [
+          {
+            name: {
+              contains: name,
+            },
+          },
+          {
+            brand: {
+              name: {
+                contains: name,
+              },
+            },
+          },
+          {
+            collection: {
+              name: {
+                contains: name,
+              },
+            },
+          },
+          {
+            series: {
+              name: {
+                contains: name,
+              },
+            },
+          },
+        ],
+      },
       include: {
         brand: true,
         collection: true,
@@ -31,14 +62,17 @@ exports.getProducts = async (req, res, next) => {
         product_img: true,
       },
     });
-    if (product.length === 0) {
+
+    if (products.length === 0) {
       return createError(404, "Product not found");
     }
-    res.json({ product });
+
+    res.json({ products });
   } catch (err) {
     next(err);
   }
 };
+
 
 exports.getProductById = async (req, res, next) => {
   try {
